@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { MouseEventHandler, useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
@@ -42,25 +42,22 @@ const objeto = {
   document: crypto.randomUUID(),
 }
 
-// for (const key in objeto) {
-//   obj
-// }
-
-
-const transformObject = (objeto: any, string = "") => {
+const transformObject = (objeto: any) => {
   const array: any = Object.entries(objeto).map((item: any) => {
 
-    const label = `${string}${string ? "-" : ""}${item[0]}`
+    const label = item[0]
+    const value = [item[0], crypto.randomUUID()]
+    
+    const object = { label, value }
     
     if (typeof item[1] === "object") {
-      return { label: item[0], value: crypto.randomUUID(), children: transformObject(item[1], label) }
+      return { ...object, children: transformObject(item[1]) }
     }
     
-    return { label, value: `${label}-[${item[1]}]` }
+    return { ...object }
   })
   return array;
 }
-
 
 const nodes = transformObject(objeto)
 
@@ -68,26 +65,21 @@ console.log(objeto)
 console.log(nodes)
 
 const App = () => {
-  const [count, setCount] = useState(0)
-
   const [state, setState] = useState<StateProps>({
     checked: [],
     expanded: [],
   })
-
+  
   const { checked, expanded } = state
+
+  const handleClick: MouseEventHandler<HTMLButtonElement> = () =>{
+    const values = Object.fromEntries(checked.map(item => item.split(",")))  
+    console.log("checked:", values)
+  }
 
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-
+    <div className="main_container">
       <div className="checkboxTree">
         <h5 className="title">Filtro de productos</h5>
         <CheckboxTree
@@ -110,19 +102,11 @@ const App = () => {
           }}
         />
       </div>
-
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      
+      <button onClick={handleClick}>
+        Console log checked value
+      </button>
+    </div>
     </>
   )
 }
